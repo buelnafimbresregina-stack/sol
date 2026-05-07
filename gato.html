@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Tú vs IA - Gato</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 2rem;
+      text-align: center;
+      vertical-align: middle;
+      cursor: pointer;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    td {
+      border: 3px solid black !important;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container text-center mt-5">
+  <h2>🧠 Tú vs IA</h2>
+
+  <div class="alert alert-info" id="status">Tu turno (X)</div>
+
+  <table class="table mx-auto" style="width: 300px;">
+    <tbody id="board"></tbody>
+  </table>
+
+  <button class="btn btn-dark mt-3" onclick="resetGame()">Reiniciar</button>
+</div>
+
+<script>
+let board = ["", "", "", "", "", "", "", "", ""];
+let gameActive = true;
+
+const statusDisplay = document.getElementById("status");
+
+function createBoard() {
+  const boardElement = document.getElementById("board");
+  boardElement.innerHTML = "";
+
+  for (let i = 0; i < 3; i++) {
+    let row = document.createElement("tr");
+
+    for (let j = 0; j < 3; j++) {
+      let index = i * 3 + j;
+      let cell = document.createElement("td");
+      cell.classList.add("cell");
+      cell.dataset.index = index;
+      cell.addEventListener("click", playerMove);
+      row.appendChild(cell);
+    }
+
+    boardElement.appendChild(row);
+  }
+}
+
+/* 🎮 jugador */
+function playerMove(e) {
+  let i = e.target.dataset.index;
+
+  if (!gameActive || board[i] !== "") return;
+
+  board[i] = "X";
+  updateBoard();
+
+  if (checkWinner("X")) {
+    gameActive = false;
+    showWin();
+    return;
+  }
+
+  if (isFull()) {
+    gameActive = false;
+    showDraw();
+    return;
+  }
+
+  statusDisplay.textContent = "IA pensando...";
+  setTimeout(aiMove, 400);
+}
+
+/* 🤖 IA */
+function aiMove() {
+  if (!gameActive) return;
+
+  let move = findBestMove();
+  board[move] = "O";
+
+  updateBoard();
+
+  if (checkWinner("O")) {
+    gameActive = false;
+    showLose();
+    return;
+  }
+
+  if (isFull()) {
+    gameActive = false;
+    showDraw();
+    return;
+  }
+
+  statusDisplay.textContent = "Tu turno (X)";
+}
+
+/* 🧠 IA inteligente */
+function findBestMove() {
+  let empty = board.map((v,i)=>v===""?i:null).filter(v=>v!==null);
+
+  // gana
+  for (let i of empty) {
+    board[i] = "O";
+    if (checkWinner("O")) { board[i] = ""; return i; }
+    board[i] = "";
+  }
+
+  // bloquea
+  for (let i of empty) {
+    board[i] = "X";
+    if (checkWinner("X")) { board[i] = ""; return i; }
+    board[i] = "";
+  }
+
+  if (board[4] === "") return 4;
+
+  let corners = [0,2,6,8].filter(i => board[i] === "");
+  if (corners.length) return corners[Math.floor(Math.random()*corners.length)];
+
+  return empty[Math.floor(Math.random()*empty.length)];
+}
+
+/* 🔍 lógica */
+function checkWinner(p) {
+  const win = [
+    [0,1,2],[3,4,5],[6,7,8],
+    [0,3,6],[1,4,7],[2,5,8],
+    [0,4,8],[2,4,6]
+  ];
+
+  return win.some(c => c.every(i => board[i] === p));
+}
+
+function isFull() {
+  return board.every(c => c !== "");
+}
+
+/* 🎨 UI */
+function updateBoard() {
+  document.querySelectorAll(".cell").forEach(c => {
+    c.textContent = board[c.dataset.index];
+  });
+}
+
+/* 💥 ALERTAS SWEETALERT */
+function showWin() {
+  Swal.fire({
+    title: "¡Ganaste! 🎉",
+    text: "La IA no pudo contigo 😏",
+    icon: "success"
+  });
+}
+
+function showDraw() {
+  Swal.fire({
+    title: "Empate 🤝",
+    text: "Estuvieron parejos...",
+    icon: "info"
+  });
+}
+
+function showLose() {
+  Swal.fire({
+    title: "Perdiste 🤖",
+    text: "Eres una estúpida 😌",
+    icon: "error"
+  });
+}
+
+/* 🔄 reset */
+function resetGame() {
+  board = ["", "", "", "", "", "", "", "", ""];
+  gameActive = true;
+  statusDisplay.textContent = "Tu turno (X)";
+  createBoard();
+}
+
+createBoard();
+</script>
+
+</body>
+</html>

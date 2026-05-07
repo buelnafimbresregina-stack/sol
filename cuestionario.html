@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cuestionario</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-light">
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header text-center bg-primary text-white">
+            <h3>Cuestionario (10 preguntas)</h3>
+        </div>
+        <div class="card-body">
+            <form id="quizForm"></form>
+
+            <div class="text-center mt-4">
+                <button type="button" class="btn btn-success" onclick="calificar()">Enviar respuestas</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const preguntas = [
+    { pregunta: "¿Capital de Francia?", opciones: ["Madrid", "París", "Roma", "Berlín"], correcta: 1 },
+    { pregunta: "¿5 + 3 = ?", opciones: ["6", "7", "8", "9"], correcta: 2 },
+    { pregunta: "¿Color del cielo?", opciones: ["Rojo", "Verde", "Azul", "Amarillo"], correcta: 2 },
+    { pregunta: "¿Lenguaje de la web?", opciones: ["Python", "HTML", "C++", "Java"], correcta: 1 },
+    { pregunta: "¿Planeta rojo?", opciones: ["Venus", "Marte", "Júpiter", "Saturno"], correcta: 1 },
+    { pregunta: "¿2 x 6 = ?", opciones: ["10", "11", "12", "13"], correcta: 2 },
+    { pregunta: "¿Animal que vuela?", opciones: ["Perro", "Gato", "Águila", "Vaca"], correcta: 2 },
+    { pregunta: "¿Mes con 28 días?", opciones: ["Febrero", "Todos", "Junio", "Abril"], correcta: 1 },
+    { pregunta: "¿Idioma de Brasil?", opciones: ["Español", "Portugués", "Inglés", "Francés"], correcta: 1 },
+    { pregunta: "¿3² = ?", opciones: ["6", "9", "12", "3"], correcta: 1 },
+    { pregunta: "¿Capital de México?", opciones: ["Guadalajara", "CDMX", "Monterrey", "Puebla"], correcta: 1 },
+    { pregunta: "¿Gas que respiramos?", opciones: ["CO2", "Oxígeno", "Hidrógeno", "Helio"], correcta: 1 }
+];
+
+// Mezclar preguntas
+function mezclar(array) {
+    return array.sort(() => Math.random() - 0.5);
+}
+
+// Seleccionar 10 preguntas aleatorias
+const preguntasAleatorias = mezclar([...preguntas]).slice(0, 10);
+
+const form = document.getElementById("quizForm");
+
+// Renderizar preguntas
+preguntasAleatorias.forEach((p, index) => {
+    let html = `<div class="mb-3">
+        <label class="form-label"><strong>${index + 1}. ${p.pregunta}</strong></label>`;
+
+    p.opciones.forEach((op, i) => {
+        html += `
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="pregunta${index}" value="${i}">
+            <label class="form-check-label">${op}</label>
+        </div>`;
+    });
+
+    html += `</div>`;
+    form.innerHTML += html;
+});
+
+// Calificar
+function calificar() {
+    let correctas = 0;
+
+    preguntasAleatorias.forEach((p, index) => {
+        const respuesta = document.querySelector(`input[name="pregunta${index}"]:checked`);
+
+        if (respuesta && parseInt(respuesta.value) === p.correcta) {
+            correctas++;
+        }
+    });
+
+    let porcentaje = (correctas / 10) * 100;
+
+    if (porcentaje >= 60) {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Felicidades!',
+            text: `Obtuviste ${porcentaje.toFixed(0)}% (${correctas}/10)`
+        });
+    } else {
+        Swal.fire({
+            icon: 'error',
+            title: 'Reprobado',
+            text: `Obtuviste ${porcentaje.toFixed(0)}% (${correctas}/10). Intenta de nuevo.`
+        });
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mi Universo de Apps</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    background: radial-gradient(circle at center, #1a1a2e, #000);
+    overflow: hidden;
+    font-family: Arial;
+}
+
+/* ✨ ESTRELLAS */
+.stars {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.stars::after {
+    content: "";
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: white;
+    box-shadow:
+        100px 200px white, 300px 400px white, 500px 100px white,
+        700px 300px white, 900px 200px white, 1200px 500px white,
+        400px 600px white, 800px 700px white, 200px 800px white,
+        1000px 900px white, 600px 200px white, 1100px 300px white;
+    animation: twinkle 2s infinite alternate;
+}
+
+@keyframes twinkle {
+    from { opacity: 0.3; }
+    to { opacity: 1; }
+}
+
+/* 🌞 SOL */
+#sun {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(circle, #ffd700, #ff8c00);
+    border-radius: 50%;
+    box-shadow: 0 0 60px orange, 0 0 120px gold;
+}
+
+/* 🌌 ÓRBITAS */
+.orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* 🔥 IMPORTANTE: no bloquea clicks */
+}
+
+/* 🪐 PLANETAS */
+.planet {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 11px;
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    pointer-events: auto; /* 🔥 asegura clic */
+    z-index: 10; /* 🔥 encima de todo */
+}
+
+/* ✨ HOVER */
+.planet:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+    box-shadow: 0 0 15px white;
+}
+
+/* 🎨 COLORES */
+.p1 { background: #00b894; }
+.p2 { background: #0984e3; }
+.p3 { background: #6c5ce7; }
+.p4 { background: #e17055; }
+.p5 { background: #fdcb6e; color: black; }
+
+/* 🔄 ANIMACIÓN */
+@keyframes rotate {
+    from { transform: translate(-50%, -50%) rotate(0deg);}
+    to { transform: translate(-50%, -50%) rotate(360deg);}
+}
+
+/* 🪐 ÓRBITAS */
+.o1 { width: 220px; height: 220px; animation: rotate 20s linear infinite; }
+.o2 { width: 320px; height: 320px; animation: rotate 14s linear infinite; }
+.o3 { width: 420px; height: 420px; animation: rotate 10s linear infinite; }
+.o4 { width: 520px; height: 520px; animation: rotate 18s linear infinite; }
+.o5 { width: 620px; height: 620px; animation: rotate 25s linear infinite; }
+
+</style>
+</head>
+
+<body>
+
+<div class="stars"></div>
+
+<div id="sun"></div>
+
+<!-- 🪐 PLANETAS -->
+
+<div class="orbit o1">
+    <a href="crucigrama.html" class="planet p1">Crucigrama</a>
+</div>
+
+<div class="orbit o2">
+    <a href="cuestionario.html" class="planet p2">Cuestionario</a>
+</div>
+
+<div class="orbit o3">
+    <a href="gato.html" class="planet p3">Gato</a>
+</div>
+
+<div class="orbit o4">
+    <a href="pares.html" class="planet p4">Pares</a>
+</div>
+
+<div class="orbit o5">
+    <a href="sopas.html" class="planet p5">Sopa de letras</a>
+</div>
+
+</body>
+</html>

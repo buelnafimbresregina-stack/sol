@@ -1,0 +1,256 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Sopa de Letras Bootstrap</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(12, 40px);
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .cell {
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    background-color: var(--bs-light);
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.2s;
+  }
+
+  .cell:hover {
+    background-color: #e2e6ea;
+  }
+
+  .selected {
+    background-color: var(--bs-primary);
+    color: white;
+  }
+
+  .found {
+    background-color: var(--bs-success);
+    color: white;
+  }
+
+  .word-found {
+    text-decoration: line-through;
+    color: var(--bs-success);
+    font-weight: bold;
+  }
+</style>
+</head>
+
+<body class="bg-body-tertiary">
+
+<div class="container py-5">
+
+  <div class="card shadow-lg">
+    <div class="card-header text-center bg-primary text-white">
+      <h4 class="mb-0">🧠 Sopa de Letras</h4>
+    </div>
+
+    <div class="card-body text-center">
+
+      <div id="grid" class="grid mb-4"></div>
+
+      <h5 class="mb-3">Palabras a encontrar</h5>
+      <ul id="wordList" class="list-group mb-4"></ul>
+
+      <div class="d-flex justify-content-center gap-2">
+        <button class="btn btn-outline-secondary" onclick="resetGame()">Reiniciar</button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WORDS = ["SOL", "LUNA", "MAR", "CIELO", "NUBE"];
+const SIZE = 12;
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+let grid = [];
+let startCell = null;
+let currentSelection = [];
+
+const gridEl = document.getElementById("grid");
+const listEl = document.getElementById("wordList");
+
+// Render lista
+function renderList(){
+  listEl.innerHTML = "";
+  WORDS.forEach(w => {
+    let li = document.createElement("li");
+    li.className = "list-group-item";
+    li.id = "word-" + w;
+    li.textContent = w;
+    listEl.appendChild(li);
+  });
+}
+
+// Crear matriz
+function createGrid(){
+  grid = Array.from({length: SIZE}, () => Array(SIZE).fill(""));
+}
+
+// Direcciones
+const directions = [[0,1],[1,0],[1,1],[-1,1]];
+
+// Colocar palabras
+function placeWord(word){
+  let placed = false;
+
+  while(!placed){
+    let [dr,dc] = directions[Math.floor(Math.random()*directions.length)];
+    let row = Math.floor(Math.random()*SIZE);
+    let col = Math.floor(Math.random()*SIZE);
+
+    let coords = [];
+    let fits = true;
+
+    for(let i=0;i<word.length;i++){
+      let r = row + dr*i;
+      let c = col + dc*i;
+
+      if(r<0||r>=SIZE||c<0||c>=SIZE|| (grid[r][c] && grid[r][c]!==word[i])){
+        fits = false;
+        break;
+      }
+      coords.push([r,c]);
+    }
+
+    if(fits){
+      coords.forEach((pos,i)=>{
+        grid[pos[0]][pos[1]] = word[i];
+      });
+      placed = true;
+    }
+  }
+}
+
+// Rellenar letras
+function fillGrid(){
+  for(let i=0;i<SIZE;i++){
+    for(let j=0;j<SIZE;j++){
+      if(!grid[i][j]){
+        grid[i][j] = LETTERS[Math.floor(Math.random()*LETTERS.length)];
+      }
+    }
+  }
+}
+
+// Dibujar
+function drawGrid(){
+  gridEl.innerHTML = "";
+
+  grid.forEach((row,i)=>{
+    row.forEach((letter,j)=>{
+      let div = document.createElement("div");
+      div.className = "cell";
+      div.textContent = letter;
+      div.dataset.row = i;
+      div.dataset.col = j;
+
+      div.addEventListener("click", ()=>handleClick(div));
+
+      gridEl.appendChild(div);
+    });
+  });
+}
+
+// Click
+function handleClick(cell){
+  clearSelection();
+
+  if(!startCell){
+    startCell = cell;
+    cell.classList.add("selected");
+  }else{
+    selectBetween(startCell, cell);
+    checkSelection();
+    startCell = null;
+  }
+}
+
+// Selección línea
+function selectBetween(a,b){
+  let r1 = +a.dataset.row;
+  let c1 = +a.dataset.col;
+  let r2 = +b.dataset.row;
+  let c2 = +b.dataset.col;
+
+  let dr = Math.sign(r2-r1);
+  let dc = Math.sign(c2-c1);
+
+  let r=r1, c=c1;
+  currentSelection=[];
+
+  while(true){
+    let cell = document.querySelector(`.cell[data-row='${r}'][data-col='${c}']`);
+    if(!cell) break;
+
+    cell.classList.add("selected");
+    currentSelection.push(cell);
+
+    if(r===r2 && c===c2) break;
+
+    r+=dr;
+    c+=dc;
+  }
+}
+
+// Validar
+function checkSelection(){
+  let word = currentSelection.map(c=>c.textContent).join("");
+  let reverse = word.split("").reverse().join("");
+
+  let found = WORDS.find(w=>w===word||w===reverse);
+
+  if(found){
+    currentSelection.forEach(c=>{
+      c.classList.remove("selected");
+      c.classList.add("found");
+    });
+
+    document.getElementById("word-"+found).classList.add("word-found");
+  }else{
+    setTimeout(clearSelection, 300);
+  }
+
+  currentSelection=[];
+}
+
+// Limpiar selección
+function clearSelection(){
+  document.querySelectorAll(".selected").forEach(c=>c.classList.remove("selected"));
+}
+
+// Reset
+function resetGame(){
+  startCell=null;
+  currentSelection=[];
+  createGrid();
+  WORDS.forEach(placeWord);
+  fillGrid();
+  drawGrid();
+  renderList();
+}
+
+// Init
+resetGame();
+</script>
+
+</body>
+</html>
+```
